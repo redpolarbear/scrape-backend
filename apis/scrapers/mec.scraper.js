@@ -107,6 +107,11 @@ exports.list = function (url) {
       });
 
       spooky.then(function () {
+        var productName = this.evaluate(function () {
+          return document.title;
+        })
+        // capture the "Tech Specs" as the png into the path public/images/mec/
+        this.captureSelector('public/images/mec/' + productName + ' - TECH SPECS.png', '#main-content > div > div > div:nth-child(4) > div:nth-child(1) > div.product__accordion.accordion > div:nth-child(2)')
         this.emit('master', this.evaluate(function () {
           // name
           var $name = document.title;

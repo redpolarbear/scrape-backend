@@ -12,7 +12,11 @@ exports.scrape = function (req, res, next) {
   } else {
     scraperToUse = 'default'
   }
-  scrapers[scraperToUse].list(url).then(function (cb_data) {
-    res.status(200).json(cb_data);
-  });
+  scrapers[scraperToUse].list(url)
+    .then(function (cb_data) {
+      res.status(200).json(cb_data);
+    })
+    .catch(function (error) {
+      console.log(error);
+    });
 }
