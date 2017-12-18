@@ -26,37 +26,76 @@ exports.list = function (url) {
 
       spooky.then(function() {
         self = this;
-        var colorNumber = this.evaluate(function () {
-          return document.querySelectorAll('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch').length;
-        });
-        if (colorNumber !== 0) {
-          // multiple color existed
-          asyncLoop(colorNumber, function (loop) {
+        var baseColorEleStr = '#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container';
+        var colorDOMsNumber = this.evaluate(function (baseColorEleStr) {
+          return document.querySelectorAll(baseColorEleStr + ' > div').length;
+        }, baseColorEleStr);
+
+        if (colorDOMsNumber > 1) {// with the clearance color
+          // regular color
+          var regColorEleStr = baseColorEleStr + ' > div.swatch-control-wrapper > div > div.swatch__group > ul > li.swatch';
+          var regColorNumber = this.evaluate(function (regColorEleStr) {
+            return document.querySelectorAll(regColorEleStr).length;
+          }, regColorEleStr)
+          asyncLoop(regColorNumber, function (loop) {
             var i = loop.iterations() + 1;
-            var elem = '#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch:nth-child(' + i + ') > a'
-            colorClick(elem, function (sku) {
+            var regColorAStr = regColorEleStr + ':nth-child(' + i + ') > a';
+            colorClick(regColorAStr, regColorEleStr, function (sku) {
               self.emit('sku', sku);
               loop.next();
             })
           }, function () {
             // asyncLoop onComplete Callback
-          });
-        } else {
-          // only one color
-          skuInfo(function (info) {
-            this.emit('sku', info)
-          });
+            // clearance color
+            var cleColorEleStr = baseColorEleStr + ' > div:nth-child(2) > div > div.swatch__group > ul > li.swatch';
+            var cleColorNumber = self.evaluate(function (cleColorEleStr) {
+              return document.querySelectorAll(cleColorEleStr).length;
+            }, cleColorEleStr)
+            asyncLoop(cleColorNumber, function (loop) {
+              var i = loop.iterations() + 1;
+              var cleColorAStr = cleColorEleStr + ':nth-child(' + i + ') > a';
+              colorClick(cleColorAStr, cleColorEleStr, function (sku) {
+                self.emit('sku', sku);
+                loop.next();
+              })
+            }, function () {
+              // asyncLoop onComplete Callback
+            })
+          })
+        } else if (colorDOMsNumber === 1 || colorDOMsNumber === 0) { // without the clearance color
+          var colorEleStr = baseColorEleStr + ' > div > div.swatch__group > ul > li.swatch';
+          var colorNumber = this.evaluate(function (colorEleStr) {
+            return document.querySelectorAll(colorEleStr).length;
+          }, colorEleStr);
+          if (colorNumber !== 0) {
+            // multiple color existed
+            asyncLoop(colorNumber, function (loop) {
+              var i = loop.iterations() + 1;
+              var elem = '#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch:nth-child(' + i + ') > a'
+              colorClick(elem, colorEleStr, function (sku) {
+                self.emit('sku', sku);
+                loop.next();
+              })
+            }, function () {
+              // asyncLoop onComplete Callback
+            });
+          } else {
+            // only one color
+            skuInfo(null, function (info) {
+              this.emit('sku', info)
+            });
+          }
         }
-        function colorClick (elem, callback) {
-          self.click(elem)
+        function colorClick (elemA, elemB, callback) {
+          self.click(elemA)
           self.wait(1000, function () {
-            skuInfo(function (info) {
+            skuInfo(elemB, function (info) {
               callback(info)
             })
           })
         }
-        function skuInfo (callback) {
-          var $sku = self.evaluate(function () {
+        function skuInfo (colorStr, callback) {
+          var $sku = self.evaluate(function (colorStr) {
             // price
             var $priceDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__price.js-price > ul.price-group > li.price > span[itemprop="offers"]');
             if (!!$priceDOM.querySelector('span[itemprop="price"]')) {
@@ -69,9 +108,13 @@ exports.list = function (url) {
             // color name
             var $colorName = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').textContent;
             // color Img
-            var $colorImgDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch.is-active > a > span')
-            // var $colorImg = $colorImgDOM.style.backgroundImage;
-            var $colorImg = window.getComputedStyle($colorImgDOM, false).getPropertyValue('background-image').slice(4, -1);
+            if (colorStr === null) {
+              var $colorImg = '' // only one color, return ''
+            } else {
+              var $colorImgDOM = document.querySelector(colorStr + '.is-active > a > span')
+              var $colorImg = window.getComputedStyle($colorImgDOM, false).getPropertyValue('background-image').slice(4, -1);
+              // var $colorImg = $colorImgDOM.style.backgroundImage;
+            }
             // size under this color
             var $sizeOptions = document.querySelectorAll('#ProductDetailControls > div.product__controls__component.product__size > div > div.select-box > select > option');
             var $sizeArray = [];
@@ -87,7 +130,7 @@ exports.list = function (url) {
               colorImg: $colorImg,
               sizes: $sizeArray
             }
-          })
+          }, colorStr)
           callback($sku)
         }
         function asyncLoop (iterations, func, callback) {
