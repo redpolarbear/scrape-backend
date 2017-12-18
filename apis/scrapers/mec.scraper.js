@@ -70,7 +70,8 @@ exports.list = function (url) {
             var $colorName = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').innerHTML;
             // color Img
             var $colorImgDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch.is-active > a > span')
-            var $colorImg = $colorImgDOM.getAttribute('style')
+            // var $colorImg = $colorImgDOM.style.backgroundImage;
+            var $colorImg = window.getComputedStyle($colorImgDOM, false).getPropertyValue('background-image').slice(4, -1);
             // size under this color
             var $sizeOptions = document.querySelectorAll('#ProductDetailControls > div.product__controls__component.product__size > div > div.select-box > select > option');
             var $sizeArray = [];
@@ -83,7 +84,7 @@ exports.list = function (url) {
             return {
               price: $price,
               colorName: $colorName,
-              colorImg: $colorImg.substring(21, $colorImg.length - 1),
+              colorImg: $colorImg,
               size: $sizeArray
             }
           })
