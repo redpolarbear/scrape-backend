@@ -33,7 +33,8 @@ exports.list = function (url) {
           // multiple color existed
           asyncLoop(colorNumber, function (loop) {
             var i = loop.iterations() + 1;
-            colorClick(i, function (sku) {
+            var elem = '#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch:nth-child(' + i + ') > a'
+            colorClick(elem, function (sku) {
               self.emit('sku', sku);
               loop.next();
             })
@@ -46,15 +47,14 @@ exports.list = function (url) {
             this.emit('sku', info)
           });
         }
-        function colorClick (i, callback) {
-          self.click('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch:nth-child(' + i + ') > a')
+        function colorClick (elem, callback) {
+          self.click(elem)
           self.wait(1000, function () {
             skuInfo(function (info) {
               callback(info)
             })
           })
-        };
-
+        }
         function skuInfo (callback) {
           var $sku = self.evaluate(function () {
             // price
@@ -67,7 +67,7 @@ exports.list = function (url) {
               var $price = $lowPrice + ' - ' + $highPrice;
             }
             // color name
-            var $colorName = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').innerHTML;
+            var $colorName = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').textContent;
             // color Img
             var $colorImgDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch.is-active > a > span')
             // var $colorImg = $colorImgDOM.style.backgroundImage;
@@ -85,12 +85,11 @@ exports.list = function (url) {
               price: $price,
               colorName: $colorName,
               colorImg: $colorImg,
-              size: $sizeArray
+              sizes: $sizeArray
             }
           })
           callback($sku)
         }
-
         function asyncLoop (iterations, func, callback) {
           var index = 0;
           var done = false;
