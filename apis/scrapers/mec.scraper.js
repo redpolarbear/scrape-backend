@@ -58,9 +58,19 @@ exports.list = function (url) {
         function skuInfo (callback) {
           var $sku = self.evaluate(function () {
             // price
-            var $price = document.querySelector('#ProductDetailControls > div.product__controls__component.product__price.js-price > ul > li > span:nth-child(2) > span').textContent;
+            var $priceDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__price.js-price > ul.price-group > li.price > span[itemprop="offers"]');
+            if (!!$priceDOM.querySelector('span[itemprop="price"]')) {
+              var $price = parseFloat($priceDOM.querySelector('span[itemprop="price"]').textContent.substr(1))
+            } else {
+              var $lowPrice = document.querySelector('#ProductDetailControls > div.product__controls__component.product__price.js-price > ul.price-group > li.price > span[itemprop="offers"] > span[itemprop="lowPrice"]').textContent;
+              var $highPrice = document.querySelector('#ProductDetailControls > div.product__controls__component.product__price.js-price > ul.price-group > li.price > span[itemprop="offers"] > span[itemprop="highPrice"]').textContent;
+              var $price = $lowPrice + ' - ' + $highPrice;
+            }
             // color name
-            var $color = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').innerHTML;
+            var $colorName = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > label > span').innerHTML;
+            // color Img
+            var $colorImgDOM = document.querySelector('#ProductDetailControls > div.product__controls__component.product__colour > div.swatch-container.js-swatch-container.js-swatch-parent-container > div > div.swatch__group > ul > li.swatch.is-active > a > span')
+            var $colorImg = $colorImgDOM.getAttribute('style')
             // size under this color
             var $sizeOptions = document.querySelectorAll('#ProductDetailControls > div.product__controls__component.product__size > div > div.select-box > select > option');
             var $sizeArray = [];
@@ -71,8 +81,9 @@ exports.list = function (url) {
               }
             }
             return {
-              price: parseFloat($price.substr(1)),
-              color: $color,
+              price: $price,
+              colorName: $colorName,
+              colorImg: $colorImg.substring(21, $colorImg.length - 1),
               size: $sizeArray
             }
           })
