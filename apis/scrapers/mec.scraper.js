@@ -174,7 +174,7 @@ exports.list = function (url) {
           var $imgsArray = [];
           for (var i =0; i < $imgElems.length; ++i) {
             var $img = $imgElems[i].querySelector('div > div > div > img')
-            $imgsArray.push($img.getAttribute('data-high-res-src'))
+            $imgsArray.push({src: $img.getAttribute('data-high-res-src')})
           }
           // desc
           var $desc = document.querySelector('#pdp-description > p').outerHTML.trim() + document.querySelector('#pdp-description > ul').outerHTML.trim();

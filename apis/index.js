@@ -1,11 +1,12 @@
 'use strict';
+const Image = require('./shared/image')
 
-var scrapers = {};
-scrapers['mec'] = require('./scrapers/mec.scraper');
+var scrapers = {}
+scrapers['mec'] = require('./scrapers/mec.scraper')
 
 exports.scrape = function (req, res, next) {
-  const url = req.body.url;
-  var scraperToUse = '';
+  const url = req.body.url
+  var scraperToUse = ''
   
   if (url.indexOf('mec.ca') !== -1) {
     scraperToUse = 'mec'
@@ -18,5 +19,19 @@ exports.scrape = function (req, res, next) {
     })
     .catch(function (error) {
       console.log(error);
-    });
+    })
+}
+
+exports.saveImage = async function (req, res, next) {
+  try {
+    const imageUrl = req.query.imageUrl
+    const filename = await Image.resizeAndSave(imageUrl)
+    res.json(filename)
+  } catch (error) {
+    console.log(error)
+  }
+}
+
+exports.uploadImage = function (req, res, next) {
+
 }
