@@ -1,5 +1,9 @@
 'use strict';
+
+var axios = require('axios')
+
 const Image = require('./shared/image')
+const Weidian = require('./weidian/index')
 
 var scrapers = {}
 scrapers['mec'] = require('./scrapers/mec.scraper')
@@ -35,3 +39,21 @@ exports.saveImage = async function (req, res, next) {
 exports.uploadImage = function (req, res, next) {
 
 }
+
+exports.getToken = async function (req, res, next) {
+  try {
+    const token = await Weidian.Token.get()
+    res.json(token)
+  } catch (error) {
+    throw error
+  }
+}
+
+// exports.saveToken = async function (req, res, next) {
+//   try {
+//     const response = await Weidian.saveToken()
+//     res.json(response)
+//   } catch (error) {
+//     throw error
+//   }
+// }
