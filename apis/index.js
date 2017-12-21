@@ -36,8 +36,19 @@ exports.saveImage = async function (req, res, next) {
   }
 }
 
-exports.uploadImage = function (req, res, next) {
-
+exports.uploadImage = async function (req, res, next) {
+  try {
+    const filename = req.query.filename
+    console.log(filename)
+    const tokenObj = await Weidian.Token.get()
+    const token = tokenObj.data.token
+    const response = await Weidian.Image.upload(token, filename)
+    if (response.status.status_code === 0) {
+      res.status(200).json(response.result)
+    }
+  } catch (error) {
+    console.log(error)    
+  }
 }
 
 exports.getToken = async function (req, res, next) {
@@ -48,12 +59,3 @@ exports.getToken = async function (req, res, next) {
     throw error
   }
 }
-
-// exports.saveToken = async function (req, res, next) {
-//   try {
-//     const response = await Weidian.saveToken()
-//     res.json(response)
-//   } catch (error) {
-//     throw error
-//   }
-// }

@@ -6,7 +6,7 @@ var router = express.Router()
 /* POST api */
 router.post('/scrape', apis.scrape)
 router.get('/saveimage', apis.saveImage)
-router.post('/uploadimage', apis.uploadImage)
+router.get('/uploadimage', apis.uploadImage)
 router.get('/gettoken', apis.getToken)
 // router.get('/savetoken', apis.saveToken)
 
