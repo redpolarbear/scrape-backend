@@ -1,22 +1,7 @@
 'use strict';
-
 var Jimp = require('jimp')
 var path = require('path');
 var URL = require('url-parse');
-
-// exports.save = async function (url) {
-//   const basename = path.basename(url)
-//   const imgUrl = new URL(url)
-//   const hostname = imgUrl.hostname
-//   const dest = 'public/images/downloads/' + hostname + '-' + basename
-//   const options = { url, dest }
-//   try {
-//     const imageObj = await downloader.image(options)
-//     return imageObj.filename
-//   } catch (error) {
-//     console.log(error)
-//   }
-// }
 
 exports.resizeAndSave = async function (url) {
   const basename = path.basename(url)
