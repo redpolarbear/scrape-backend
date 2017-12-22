@@ -59,3 +59,12 @@ exports.getToken = async function (req, res, next) {
     throw error
   }
 }
+
+exports.getAttr = async function (req, res, next) {
+  try {
+    const attr_list = await Weidian.Product.getAttrList()
+    res.json(attr_list)
+  } catch (error) {
+    throw error
+  }
+}

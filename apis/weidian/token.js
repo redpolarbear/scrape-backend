@@ -9,9 +9,15 @@ var db = firebase.firestore()
 var tokenRef = db.collection('Token').doc('currentToken')
 
 const getToken = async function () {
-  var apiUrl = 'https://api.vdian.com/token?grant_type=client_credential&' + 'appkey=' + appkey + '&secret=' + secret
+  var apiUrl = 'https://api.vdian.com/token'
   try {
-    const token = await axios.get(apiUrl)
+    const token = await axios.get(apiUrl, {
+      params: {
+        grant_type: 'client_credential',
+        appkey,
+        secret
+      }
+    })
     if (token.data.status.status_code === 0) { // success
       return { 
         data: {
