@@ -68,3 +68,15 @@ exports.getAttr = async function (req, res, next) {
     throw error
   }
 }
+
+exports.addAttr = async function (req, res, next) {
+  try {
+    const attr_title = req.query.attr_title
+    const attr_value = req.query.attr_value
+    console.log(attr_title, attr_value)
+    const newAttr_list = await Weidian.Product.addAttr(attr_title, attr_value)
+    res.json(newAttr_list)
+  } catch (error) {
+    throw error
+  }
+}
